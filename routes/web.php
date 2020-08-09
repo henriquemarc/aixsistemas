@@ -27,3 +27,4 @@ Route::resource('permissao', 'PermissionController')->names('permission')->param
 Route::resource('logsAcesso', 'LogsController')->names('logs')->parameters(['logsAcesso' => 'logs']);
 Route::resource('alunos', 'StudentController')->names('student')->parameters(['alunos' => 'student']);
 Route::resource('cursos', 'CourseController')->names('course')->parameters(['cursos' => 'course']);
+Route::resource('alunosCurso', 'StudentCourseController')->names('studentCourse')->parameters(['alunosCurso' => 'studentCourse']);

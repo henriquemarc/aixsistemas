@@ -1,4 +1,5 @@
 <?php
+ini_set('max_execution_time', '99999999999999s');
 require_once('connect.php');
 switch ($_GET['acao']) {
     case "importar":
@@ -6,7 +7,8 @@ switch ($_GET['acao']) {
                 echo "0|-|Informe um arquivo do tipo '*.xml'.";
             }
             else {
-                copy($_FILES['arquivoImporta']['tmp_name'], DIRETORIO."storage/cursos".date('YmdHis').".xml");
+                $arquivo = DIRETORIO."storage/cursos".date('YmdHis').".xml";
+                copy($_FILES['arquivoImporta']['tmp_name'], $arquivo);
                 $xml = simplexml_load_file(URL."storage/cursos".date('YmdHis').".xml");
                 foreach($xml->curso as $item){
                     $sql = "SELECT * FROM courses WHERE name = '".utf8_decode($item->nome)."'";
@@ -16,6 +18,7 @@ switch ($_GET['acao']) {
                         mysqli_query($con, $sql);
                     }
                 }
+                unlink ($arquivo);
                 echo "1";
             }
         break;
@@ -516,7 +519,7 @@ switch ($_GET['acao']) {
                 else{
                     $img = URL."storage/user-avatar.svg";
                 }
-                echo utf8_encode("1|-|Nome: <b>".$row['name']."</b><br>".utf8_decode("Matrícula").": <b>".$row['registration']."</b><br>".utf8_decode("Situação").": <b>".$status."</b><br>CEP: <b>".$row['zip']."</b><br>Logradouro: <b>".$row['address']."</b><br>".utf8_decode("Número").": <b>".$row['number']."</b><br>Complemento: <b>".$row['complement']."</b><br>Bairro: <b>".$row['neighborhood']."</b><br>Cidade: <b>".$row['city']."</b><br>Estado: <b>".$row['state']."</b><br>Curso: <b>".$row['curso']."</b><br>Turma: <b>".utf8_decode($turma)."</b><br>Imagem: <b><img src='".$img."' width='50'></b><br>Data de Cadastro: <b>".$row['created_at']."</b><br>".utf8_decode("Data de Atualização").": <b>".$row['updated_at']."</b>");
+                echo utf8_encode("1|-|Nome: <b>".$row['name']."</b><br>".utf8_decode("Matrícula").": <b>".$row['registration']."</b><br>".utf8_decode("Situação").": <b>".$status."</b><br>CEP: <b>".$row['zip']."</b><br>Logradouro: <b>".$row['address']."</b><br>".utf8_decode("Número").": <b>".$row['number']."</b><br>Complemento: <b>".$row['complement']."</b><br>Bairro: <b>".$row['neighborhood']."</b><br>Cidade: <b>".$row['city']."</b><br>Estado: <b>".$row['state']."</b><br>Curso: <b>".$row['curso']."</b><br>Turma: <b>".utf8_decode($turma)."</b><br>Imagem: <b><img src='".$img."' width='50'> - <button class='btn btn-danger' onclick=excluirImg('alunos','".$row['id']."','".URL."','".$_SESSION['user']['id']."','o')>Excluir Imagem</button></b><br>Data de Cadastro: <b>".$row['created_at']."</b><br>".utf8_decode("Data de Atualização").": <b>".$row['updated_at']."</b>");
                 $artigo = "a";
                 break;
             case "cursos":
@@ -949,6 +952,10 @@ switch ($_GET['acao']) {
         elseif ($_REQUEST['table'] == 'usuario'){
             $table = "usuario";
         }
+        elseif ($_REQUEST['table'] == 'alunos'){
+            $table = "aluno";
+            $sql = "UPDATE students SET img = '".$_RE."'";
+        }
         $action = "Excluiu a imagem d".$_REQUEST['artigo']." ".$table." ".$_REQUEST['id'];
         $sql = "INSERT INTO logs (action, user, created_at, updated_at) VALUES ('".$action."', '".$_REQUEST['idUser']."', now(), now())";
         mysqli_query($con, $sql);
@@ -1138,12 +1145,54 @@ switch ($_GET['acao']) {
         mysqli_query($con, $sql) or die(mysqli_error($con));
         echo "1";
         break;
-    case 'importacaoImoveis':
-        if (preg_match('/.csv/', $_FILES['arquivo']['name']) || preg_match('/.CSV/', $_FILES['arquivo']['name'])){
-
+    case 'importacaoAlunos':
+        if ($_REQUEST['numeroAlunos']){
+            $nomes[0] = "Henrique";
+            $nomes[1] = "Mônica";
+            $nomes[2] = "Daniel";
+            $nomes[3] = "Andréia";
+            $nomes[4] = "Breno";
+            $nomes[5] = "Letícia";
+            $nomes[6] = "Rogério";
+            $nomes[7] = "Tatiana";
+            $nomes[8] = "Artur";
+            $nomes[9] = "Isabela";
+            $sobrenomes[0] = "Marcandier";
+            $sobrenomes[1] = "Marques";
+            $sobrenomes[2] = "Gonçalves";
+            $sobrenomes[3] = "Oliveira";
+            $sobrenomes[4] = "Silva";
+            $sobrenomes[5] = "Melo";
+            $sobrenomes[6] = "Andrade";
+            $sobrenomes[7] = "Amaral";
+            $sobrenomes[8] = "de Sá";
+            $sobrenomes[9] = "Gontijo";
+            $sql = "SELECT * FROM students ORDER BY registration ASC";
+            $query = mysqli_query($con, $sql);
+            $m = mysqli_num_rows($query) + 1;
+            $sql = "SELECT * FROM courses ORDER BY id ASC";
+            $query = mysqli_query($con, $sql);
+            while ($row = mysqli_fetch_array($query)) {
+                for ($i = 1; $i <= 3; $i++) {
+                    if ($i == 1) {
+                        $turma = "M";
+                    } elseif ($i == 2) {
+                        $turma = "T";
+                    } elseif ($i == 3) {
+                        $turma = "N";
+                    }
+                    for ($j = 0; $j < $_REQUEST['numeroAlunos']; $j++) {
+                        $nome = $nomes[rand(0, 9)] . " " . $sobrenomes[rand(0, 9)] . " " . $sobrenomes[rand(0, 9)];
+                        $sql = utf8_decode("INSERT INTO students (name, registration, status, zip, address, number, complement, neighborhood, city, state, course, turma, created_at, updated_at) VALUES ('" . $nome . "', '" . $m . "', '1', '30421-108', 'Rua Geraldo Bicalho', '66', 'ap 101', 'Nova Suíssa', 'Belo Horizonte', 'MG', '" . $row['id'] . "', '" . $turma . "', now(), now())");
+                        mysqli_query($con, $sql);
+                        $m++;
+                    }
+                }
+            }
+            echo "1";
         }
         else{
-            echo "0|-|Formato Inválido! Tente novamente com um arquivo '*.cvs'!";
+            echo "0|-|Sem o número de alunos informado!";
         }
         break;
     case 'verificaNovamente':
@@ -1427,6 +1476,193 @@ switch ($_GET['acao']) {
                    </ul></div>
                     </div>
                     </div>';
+                } else {
+                    $html = '<div style="text-align:center; background-color:#FF0000; color:#FFFFFF; padding:5px; width:100%">Sem nenhum registro encontrado!</div>';
+                }
+                break;case 'alunos':
+            $sql = "SELECT a.* FROM students a  ";
+            if ($_REQUEST['nomeFiltro']) {
+                $sql .= "WHERE a.name LIKE '%" . $_REQUEST['nomeFiltro'] . "%' ";
+                $where = 1;
+            }
+            if ($_REQUEST['idFiltro']) {
+                if ($where){
+                    $sql .= "AND";
+                }
+                else{
+                    $sql .= "WHERE";
+                }
+                $sql .= " a.registration = '" . $_REQUEST['idFiltro'] . "' ";
+                $where = 1;
+            }
+            if ($_REQUEST['cursoFiltro']) {
+                if ($where){
+                    $sql .= "AND";
+                }
+                else{
+                    $sql .= "WHERE";
+                }
+                $sql .= " a.course = '" . $_REQUEST['cursoFiltro'] . "' ";
+                $where = 1;
+            }
+            if ($_REQUEST['turmaFiltro']) {
+                if ($where){
+                    $sql .= "AND";
+                }
+                else{
+                    $sql .= "WHERE";
+                }
+                $sql .= " a.turma = '" . $_REQUEST['turmaFiltro'] . "' ";
+                $where = 1;
+            }
+            $sql .= "ORDER BY a.id ASC";
+            $query = mysqli_query($con, $sql);
+            $total = mysqli_num_rows($query);
+            $offSet = $_REQUEST['pagina'] < 1 ? 0 : ((15 * ($_REQUEST['pagina'] - 1) > $total) ? $total - ($total % 15) : 15 * ($_REQUEST['pagina'] - 1));
+            $totalPaginacao = ceil($total / 15);
+            if ($totalPaginacao == $_REQUEST['pagina']) {
+                $paginacaoProxima = $_REQUEST['pagina'];
+            } elseif ($totalPaginacao > 1) {
+                $paginacaoProxima = $_REQUEST['pagina'] + 1;
+            } else {
+                $paginacaoAnterior = 1;
+            }
+            if ($_REQUEST['pagina'] <= 10) {
+                $inicial = 1;
+            } else {
+                $inicial = ((ceil($_REQUEST['pagina'] / 10) - 1) * 10) + 1;
+            }
+            $final = $inicial + 10;
+            $sql .= " LIMIT " . $offSet . ", 15";
+            $query = mysqli_query($con, $sql);
+            if (mysqli_num_rows($query)) {
+                $html .= '<table id="example2" class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+
+                <th style="padding:5px">Matrícula</th>
+
+                <th style="padding:5px">Nome</th>
+
+                <th style="padding:5px">Ações</th>
+
+            </tr>
+            </thead>
+            <tbody>';
+                $key = 0;
+                while ($alunos = mysqli_fetch_object($query)) {
+                    $html .= '<tr>
+
+                    <td style="padding:5px">' . $alunos->registration . '</td>
+
+                    <td style="padding:5px">' . utf8_encode($alunos->name) . '</td>
+
+                    <td style="padding:5px">
+                         <a href="#" data-toggle="modal" data-target="#modalVisualizacao" onclick=visualizarAlunos("' . $alunos->id . '","' . URL . '","' . $_REQUEST['idUser'] . '")><img src="' . URL . 'img/visualizar.svg" width="20"></a>
+                         <a href="#" data-toggle="modal" data-target="#modalEdicao" onclick=editarAlunos("' . $alunos->id . '","' . URL . '","' . $_REQUEST['idUser'] . '")><img src="' . URL . 'img/editar.png" width="20"></a>
+                         <a style="cursor:pointer" onclick=excluirAlunos("' . $alunos->id . '","' . URL . '","' . $_REQUEST['idUser'] . '","o","aluno")><img src="' . URL . 'img/excluir.png" width="20"></a>
+                    </td>
+                </tr>';
+                    $key++;
+                }
+                $paginacaoAnterior = ($_REQUEST['pagina'] == 1) ? 1 : $_REQUEST['pagina'] - 1;
+                $html .= '</tbody></table>|-|<div class="card-header">
+                <h3 class="card-title">
+                  <i class="ion pagination mr-1"></i>
+                  Paginação
+                </h3>
+
+                <div class="card-tools">
+                    <ul class="pagination pagination-sm" style="width:100%; text-align:center">
+                        <li class="page-item"><a class="page-link" style="cursor:pointer" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","1")>&laquo;</a></li>
+                        <li class="page-item"><a class="page-link" style="cursor:pointer" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","' . $paginacaoAnterior . '")>&leftarrow;</a></li>
+                        ';
+                $background = ($_REQUEST['pagina'] == 1) ? "#cccccc" : "";
+                $html .= '<li class="page-item"><a class="page-link" style="cursor:pointer; background-color: '.$background.'" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","1")>1</a></li>';
+                if ($_REQUEST['pagina'] >= 11) {
+                    $proxima2 = $inicial - 1;
+                    $html .= '<li class="page-item"><a class="page-link" style="cursor:pointer" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","' . $proxima2 . '")>...</a></li>
+                   ';
+                }
+                for ($j = $inicial; $j < $final; $j++) {
+                    if ($j < $totalPaginacao && $j > 1) {
+                        $background = ($_REQUEST['pagina'] == $j) ? "#cccccc" : "";
+                        $html .= '<li class="page-item"><a class="page-link" style="cursor:pointer; background-color: '.$background.'" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","' . $j . '")>' . $j . '</a></li>
+                        ';
+                    }
+                }
+                if ($totalPaginacao > 11) {
+                    $vaiAte = (floor($totalPaginacao / 10)) * 10;
+                    if ($vaiAte >= $_REQUEST['pagina']) {
+                        $proxima2 = $final;
+                        $html .= '<li class="page-item"><a class="page-link" style="cursor:pointer" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","' . $proxima2 . '")>...</a></li>';
+                    }
+                }
+                if ($totalPaginacao > 1) {
+                    $background = ($_REQUEST['pagina'] == $totalPaginacao) ? "#cccccc" : "";
+                    $html .= '<li class="page-item"><a class="page-link" style="cursor:pointer; background-color: '.$background.'" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","' . $totalPaginacao . '")>' . $totalPaginacao . '</a></li>
+                   ';
+                    $proxima = $_REQUEST['pagina'] + 1;
+                    if ($proxima > $totalPaginacao) {
+                        $proxima = $totalPginacao;
+                    }
+                } else {
+                    $proxima = 2;
+                    if ($proxima > $totalPaginacao) {
+                        $proxima = $totalPginacao;
+                    }
+                }
+                $html .= '
+                        <li class="page-item"><a class="page-link" style="cursor:pointer" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","' . $proxima . '")>&rightarrow;</a></li>
+                        <li class="page-item"><a class="page-link" style="cursor:pointer" onClick=verificaNovamente("alunos","' . URL . '","' . $_REQUEST['idUser'] . '","' . $totalPaginacao . '")>&raquo;</a></li>
+                   </ul></div>
+                    </div>
+                    </div>';
+            } else {
+                $html = '<div style="text-align:center; background-color:#FF0000; color:#FFFFFF; padding:5px; width:100%">Sem nenhum registro encontrado!</div>';
+            }
+            break;
+            case 'alunosCurso':
+                $sql = "SELECT a.* FROM students a ";
+                $sql .= "Where a.course = '" . $_REQUEST['cursoFiltro'] . "' ";
+                $where = 1;
+                if ($_REQUEST['turmaFiltro']) {
+                    if ($where){
+                        $sql .= "AND";
+                    }
+                    else{
+                        $sql .= "WHERE";
+                    }
+                    $sql .= " a.turma = '" . $_REQUEST['turmaFiltro'] . "' ";
+                    $where = 1;
+                }
+                $sql .= "ORDER BY a.name ASC";
+                $query = mysqli_query($con, $sql);
+                $total = mysqli_num_rows($query);
+                if (mysqli_num_rows($query)) {
+                    $html .= '<table id="example2" class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+
+                <th style="padding:5px">Matrícula</th>
+
+                <th style="padding:5px">Nome</th>
+
+            </tr>
+            </thead>
+            <tbody>';
+                    $key = 0;
+                    while ($alunos = mysqli_fetch_object($query)) {
+                        $html .= '<tr>
+
+                    <td style="padding:5px">' . $alunos->registration . '</td>
+
+                    <td style="padding:5px">' . utf8_encode($alunos->name) . '</td>
+                </tr>';
+                        $key++;
+                    }
+                    $paginacaoAnterior = ($_REQUEST['pagina'] == 1) ? 1 : $_REQUEST['pagina'] - 1;
+                    $html .= '</tbody></table>|-|';
                 } else {
                     $html = '<div style="text-align:center; background-color:#FF0000; color:#FFFFFF; padding:5px; width:100%">Sem nenhum registro encontrado!</div>';
                 }

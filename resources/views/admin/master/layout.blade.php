@@ -92,9 +92,9 @@
                                 </a>
                             </li>
                         @else
-                    <li class="nav-item has-treeview @if (($key == 1 && ($param == 'alunos' || $param == 'cursos' || $param == 'versao')) || ($key == 2 && ($param == 'usuarios' || $param == 'tiposModulo' || $param == 'modulos' || $param == 'permissao' || $param == 'logsAcesso' || $param == 'usuarios-pre'))) menu-open @endif ">
-                        <a href="#" class="nav-link @if (($key == 1 && ($param == 'alunos' || $param == 'cursos' || $param == 'versao')) || ($key == 2 && ($param == 'usuarios' || $param == 'tiposModulo' || $param == 'modulos' || $param == 'permissao' || $param == 'logsAcesso' || $param == 'usuarios-pre'))) active @endif ">
-                            <i class="nav-icon fas @if ($key == 1) fa-th @elseif ($key == 2) fa-edit @elseif ($key == 3) fa-book @elseif ($key == 4) fa-plus-square @elseif ($key == 5) fa-user @endif "></i>
+                    <li class="nav-item has-treeview @if (($key == 1 && ($param == 'alunos' || $param == 'cursos' || $param == 'versao' || $param == 'alunosCurso')) || ($key == 2 && ($param == 'usuarios' || $param == 'tiposModulo' || $param == 'modulos' || $param == 'permissao' || $param == 'logsAcesso' || $param == 'usuarios-pre'))) menu-open @endif ">
+                        <a href="#" class="nav-link @if (($key == 1 && ($param == 'alunos' || $param == 'cursos' || $param == 'versao' || $param == 'alunosCurso')) || ($key == 2 && ($param == 'usuarios' || $param == 'tiposModulo' || $param == 'modulos' || $param == 'permissao' || $param == 'logsAcesso' || $param == 'usuarios-pre'))) active @endif ">
+                            <i class="nav-icon fas @if ($key == 1) fa-book @elseif ($key == 2) fa-user @endif "></i>
                             <p>
                                 {{$value->name}}
                                 <i class="fas fa-angle-left right"></i>
@@ -218,6 +218,5 @@
 <!-- AdminLTE for demo purposes -->
 <script src="{{env('APP_URL')}}dist/js/demo.js"></script>
 <script src="{{env('APP_URL')}}img/scripts.js"></script>
-<script src="{{env('APP_URL')}}teste.js"></script>
 </body>
 </html>

@@ -26,13 +26,11 @@
         <section class="content">
             <div class="container-fluid">
                 <!-- Small boxes (Stat box) -->
-                <div class="row" id="conteudo">
-                    <img src="{{env('APP_URL')}}img/loader.gif" width="20"> Aguarde... Carregando...
+                <div class="row">Utilize o menu ao lado para navegar.
                     <!-- ./col -->
                 </div>
                 <!-- /.row -->
         </section>
         <!-- /.content -->
     </div>
-    <script>window.setInterval('verificaNovamente("index", "{{env('APP_URL')}}")', 60000); window.setTimeout('verificaNovamente("index", "{{env('APP_URL')}}")', 2000); </script>
-@endsection
+ @endsection

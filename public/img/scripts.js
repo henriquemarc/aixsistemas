@@ -110,11 +110,11 @@ $("#formEsqueceuSuaSenha").submit(function(evt){
     });
     return false;
 });
-$("#importacaoImoveis").submit(function(evt){
+$("#importaAlunos").submit(function(evt){
     evt.preventDefault();
     var formData = new FormData($(this)[0]);
     $.ajax({
-        url: 'ajax.php?acao=importacaoImoveis',
+        url: 'ajax.php?acao=importacaoAlunos',
         type: 'POST',
         data: formData,
         async: false,
@@ -127,16 +127,9 @@ $("#importacaoImoveis").submit(function(evt){
             if (vet[0] == 0) {
                 alert(vet[1]);
             } else if (vet[0] == 1) {
-                alert('Item Venda cadastrado com sucesso!');
-                listarItensVenda($('#product').val(), $("#url").val());
-                $("#id").val('');
-                $("#product_type").val('');
-                $("#code").val('');
-                $("#name").val('');
-                $("#value").val('');
-                $("#promotion").val('');
-                $("#validity_promotion").val('');
-                $("#status").val('0');
+                alert('Alunos importados com sucesso!');
+                jQuery('#modalImporta').modal('hide');
+                verificaNovamente('alunos', url, idUser);
             }
         },
     });
@@ -1719,6 +1712,9 @@ function excluirImg(table, id, url, idUser, artigo){
                     }
                     else if (table == 'versao'){
                         visualizarVersao(id, url, idUser);
+                    }
+                    else if (table == 'alunos'){
+                        visualizarAlunos(id, url, idUser);
                     }
                     else if (table == 'usuario'){
                         visualizarUsuarios(id, url, idUser);
